@@ -1,0 +1,12 @@
+docker_builder:
+  timeout_in: 120m
+  setup_script:
+    - docker buildx create --name multibuilder
+    - docker buildx use multibuilder
+    - docker buildx inspect --bootstrap
+  build_script: |
+    if [[ "$CIRRUS_BRANCH" == "master" ]]; then
+      docker buildx build --platform linux/amd64,linux/arm64 --push --tag "$DOCKERHUB_USERNAME/fedora-builder:latest" --tag "$DOCKERHUB_USERNAME/fedora-builder:$image_date" .
+    else
+      docker buildx build --platform linux/amd64,linux/arm64 .
+    fi
